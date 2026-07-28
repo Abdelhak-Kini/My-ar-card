@@ -1,19 +1,83 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+    <title>3D AR Business Card</title>
+    
+    <!-- A-Frame & MindAR Libraries -->
     <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
+
+    <!-- Custom Touch Drag-to-Rotate Component for 360 View -->
+    <script>
+      AFRAME.registerComponent('drag-rotate', {
+        init: function () {
+          this.ifMouseDown = false;
+          this.x_cord = 0;
+
+          const onStart = (x) => {
+            this.ifMouseDown = true;
+            this.x_cord = x;
+          };
+
+          const onMove = (x) => {
+            if (this.ifMouseDown) {
+              const temp_x = x - this.x_cord;
+              this.el.object3D.rotation.y += temp_x * 0.005;
+              this.x_cord = x;
+            }
+          };
+
+          const onEnd = () => {
+            this.ifMouseDown = false;
+          };
+
+          window.addEventListener('mousedown', (e) => onStart(e.clientX));
+          window.addEventListener('touchstart', (e) => onStart(e.touches[0].clientX));
+
+          window.addEventListener('mousemove', (e) => onMove(e.clientX));
+          window.addEventListener('touchmove', (e) => onMove(e.touches[0].clientX));
+
+          window.addEventListener('mouseup', onEnd);
+          window.addEventListener('touchend', onEnd);
+        }
+      });
+    </script>
+
+    <style>
+      /* Status indicator overlay */
+      #status-overlay {
+        position: fixed;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(15, 23, 42, 0.85);
+        color: #f8fafc;
+        padding: 10px 20px;
+        border-radius: 20px;
+        font-family: sans-serif;
+        font-size: 14px;
+        border: 1px solid rgba(255, 215, 0, 0.4);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        z-index: 9999;
+        pointer-events: none;
+        transition: all 0.3s ease;
+      }
+    </style>
   </head>
   <body>
+
+    <!-- UI Overlay for Tracking Status -->
+    <div id="status-overlay">Scan Your Business Card</div>
+
     <a-scene 
-      mindar-image="imageTargetSrc: ./targets.mind;" 
+      mindar-image="imageTargetSrc: ./targets.mind; filterMinCF: 0.0001; filterBeta: 0.001;" 
       color-space="sRGB" 
       renderer="colorManagement: true, physicallyCorrectLights" 
       vr-mode-ui="enabled: false" 
       device-orientation-permission-ui="enabled: false">
       
-      <!-- Fixed camelCase rayOrigin -->
+      <!-- Camera configured with raycaster for clicking buttons -->
       <a-camera 
         position="0 0 0" 
         look-controls="enabled: false" 
@@ -21,30 +85,97 @@
         raycaster="far: 10000; objects: .clickable">
       </a-camera>
 
-      <a-entity mindar-image-target="targetIndex: 0">
+      <!-- Target Entity -->
+      <a-entity id="card-target" mindar-image-target="targetIndex: 0">
         
-        <a-plane id="tiktok-btn" class="clickable" color="#000000" position="-0.4 0 0.1" height="0.25" width="0.6">
-          <a-text value="TikTok" color="#FFFFFF" align="center" position="0 0 0.01"></a-text>
-        </a-plane>
+        <!-- Interactive 360-degree Rotatable Container -->
+        <a-entity id="rotatable-container" drag-rotate position="0 0 0">
+          
+          <!-- Modern Glassmorphism Backplate Frame -->
+          <a-plane 
+            position="0 0 0" 
+            height="0.7" 
+            width="1.1" 
+            material="color: #0f172a; opacity: 0.85; transparent: true; metalness: 0.8; roughness: 0.2" 
+            geometry="primitive: plane">
+          </a-plane>
 
-        <a-plane id="insta-btn" class="clickable" color="#E1306C" position="0.4 0 0.1" height="0.25" width="0.6">
-          <a-text value="Instagram" color="#FFFFFF" align="center" position="0 0 0.01"></a-text>
-        </a-plane>
+          <!-- Outer Metallic Gold Border -->
+          <a-ring position="0 0 0.01" radius-inner="0.48" radius-outer="0.5" color="#FFD700" opacity="0.6"
+            animation="property: rotation; to: 0 0 360; loop: true; dur: 12000; easing: linear">
+          </a-ring>
 
+          <!-- Floating Header Text -->
+          <a-text 
+            value="CONNECT WITH US" 
+            color="#FFD700" 
+            align="center" 
+            position="0 0.22 0.05" 
+            scale="0.35 0.35 0.35" 
+            font="kelsonsans">
+          </a-text>
+
+          <!-- TIKTOK BUTTON -->
+          <a-plane 
+            id="tiktok-btn" 
+            class="clickable" 
+            color="#000000" 
+            position="-0.27 -0.05 0.05" 
+            height="0.18" 
+            width="0.42" 
+            material="opacity: 0.95; transparent: true">
+            <a-text value="TikTok" color="#00f2fe" align="center" position="0 0 0.02" scale="0.3 0.3 0.3"></a-text>
+          </a-plane>
+
+          <!-- INSTAGRAM BUTTON -->
+          <a-plane 
+            id="insta-btn" 
+            class="clickable" 
+            color="#E1306C" 
+            position="0.27 -0.05 0.05" 
+            height="0.18" 
+            width="0.42" 
+            material="opacity: 0.95; transparent: true">
+            <a-text value="Instagram" color="#FFFFFF" align="center" position="0 0 0.02" scale="0.3 0.3 0.3"></a-text>
+          </a-plane>
+
+          <!-- Instruction Sub-text -->
+          <a-text 
+            value="Swipe on screen to rotate 360°" 
+            color="#94a3b8" 
+            align="center" 
+            position="0 -0.22 0.05" 
+            scale="0.22 0.22 0.22">
+          </a-text>
+
+        </a-entity>
       </a-entity>
     </a-scene>
-    <!-- 3. JAVASCRIPT: Placed right before </body> to handle tap actions -->
+
     <script>
-      // When user taps TikTok button
+      const targetEl = document.querySelector('#card-target');
+      const statusOverlay = document.querySelector('#status-overlay');
       const tiktokBtn = document.querySelector('#tiktok-btn');
-      tiktokBtn.addEventListener('click', () => {
-        window.location.href = 'https://www.tiktok.com/@cold_spice_18';
+      const instaBtn = document.querySelector('#insta-btn');
+
+      // State Management: Listen for Target Recognition
+      targetEl.addEventListener('targetFound', () => {
+        statusOverlay.innerText = "✨ Card Recognized";
+        statusOverlay.style.background = "rgba(16, 185, 129, 0.85)"; // Green indicator
       });
 
-      // When user taps Instagram button
-      const instaBtn = document.querySelector('#insta-btn');
+      targetEl.addEventListener('targetLost', () => {
+        statusOverlay.innerText = "Scan Your Business Card";
+        statusOverlay.style.background = "rgba(15, 23, 42, 0.85)";
+      });
+
+      // Click Event Listeners
+      tiktokBtn.addEventListener('click', () => {
+        window.location.href = 'https://www.tiktok.com/@your_handle';
+      });
+
       instaBtn.addEventListener('click', () => {
-        window.location.href = 'https://www.instagram.com/abdelhak_kini/';
+        window.location.href = 'https://www.instagram.com/your_handle';
       });
     </script>
   </body>
