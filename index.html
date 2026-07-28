@@ -9,61 +9,74 @@
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
 
     <style>
-      /* Reset & Global styles */
       * { box-sizing: border-box; margin: 0; padding: 0; }
-      body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; overflow: hidden; }
+      body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; overflow: hidden; background: #000; }
 
-      /* Top Status Badge */
+      /* Status Badge */
       #status-badge {
         position: fixed;
-        top: 20px;
+        top: 24px;
         left: 50%;
         transform: translateX(-50%);
-        background: rgba(15, 23, 42, 0.9);
+        background: rgba(15, 23, 42, 0.85);
         color: #d4af37;
         padding: 8px 20px;
         border-radius: 30px;
         font-size: 13px;
         font-weight: 600;
         letter-spacing: 0.5px;
-        border: 1px solid rgba(212, 175, 55, 0.5);
+        border: 1px solid rgba(212, 175, 55, 0.4);
         box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
         z-index: 9999;
         pointer-events: none;
-        transition: all 0.3s ease;
+        transition: all 0.4s ease;
       }
 
-      /* Persistent GUI Overlay (Glassmorphism Card) */
+      /* Ultra-Smooth HTML Pop-up GUI */
       #ar-gui {
         position: fixed;
-        bottom: -250px; /* Hidden off-screen initially */
+        bottom: 0;
         left: 50%;
-        transform: translateX(-50%);
         width: 90%;
         max-width: 380px;
-        background: rgba(18, 18, 18, 0.85);
-        backdrop-filter: blur(16px);
-        -webkit-backdrop-filter: blur(16px);
-        border: 1px solid rgba(212, 175, 55, 0.4);
-        border-radius: 20px;
-        padding: 20px;
-        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+        background: rgba(15, 15, 15, 0.88);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid rgba(212, 175, 55, 0.3);
+        border-bottom: none;
+        border-radius: 24px 24px 0 0;
+        padding: 24px 20px 32px 20px;
+        box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.8);
         z-index: 9998;
-        transition: bottom 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        text-align: center;
+        
+        /* Smooth Entrance Physics */
+        transform: translate(-50%, 100%);
+        opacity: 0;
+        transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease;
       }
 
-      /* When target found, bring GUI up */
+      /* Active state on scan */
       #ar-gui.active {
-        bottom: 30px;
+        transform: translate(-50%, 0%);
+        opacity: 1;
+      }
+
+      /* Subtle drag handle indicator at top of card */
+      .card-handle {
+        width: 36px;
+        height: 4px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 2px;
+        margin: 0 auto 16px auto;
       }
 
       #ar-gui h2 {
         color: #ffffff;
-        font-size: 16px;
+        font-size: 18px;
         font-weight: 700;
         margin-bottom: 4px;
-        letter-spacing: 1px;
+        letter-spacing: 0.5px;
+        text-align: center;
       }
 
       #ar-gui p {
@@ -71,7 +84,8 @@
         font-size: 11px;
         text-transform: uppercase;
         letter-spacing: 1.5px;
-        margin-bottom: 16px;
+        margin-bottom: 20px;
+        text-align: center;
       }
 
       .btn-container {
@@ -81,8 +95,8 @@
 
       .social-btn {
         flex: 1;
-        padding: 12px 10px;
-        border-radius: 12px;
+        padding: 14px 10px;
+        border-radius: 14px;
         text-decoration: none;
         font-size: 14px;
         font-weight: 700;
@@ -90,25 +104,25 @@
         align-items: center;
         justify-content: center;
         gap: 8px;
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease;
       }
 
       .social-btn:active {
-        transform: scale(0.95);
+        transform: scale(0.94);
       }
 
       .btn-tiktok {
         background: #000000;
         color: #00f2fe;
-        border: 1px solid #00f2fe;
-        box-shadow: 0 4px 15px rgba(0, 242, 254, 0.2);
+        border: 1px solid rgba(0, 242, 254, 0.6);
+        box-shadow: 0 4px 20px rgba(0, 242, 254, 0.15);
       }
 
       .btn-insta {
         background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
         color: #ffffff;
         border: none;
-        box-shadow: 0 4px 15px rgba(220, 39, 67, 0.3);
+        box-shadow: 0 4px 20px rgba(220, 39, 67, 0.25);
       }
     </style>
   </head>
@@ -117,8 +131,9 @@
     <!-- Top Status Indicator -->
     <div id="status-badge">Scan Business Card</div>
 
-    <!-- On-Screen GUI Overlay -->
+    <!-- On-Screen HTML Overlay -->
     <div id="ar-gui">
+      <div class="card-handle"></div>
       <h2>ABDELHAK KINI</h2>
       <p>Connect On Socials</p>
       <div class="btn-container">
@@ -131,7 +146,7 @@
       </div>
     </div>
 
-    <!-- A-Frame AR Scene -->
+    <!-- Clean MindAR Scene without 3D Boxes -->
     <a-scene 
       mindar-image="imageTargetSrc: ./targets.mind; autoStart: true; uiScanning: no;" 
       color-space="sRGB" 
@@ -141,22 +156,8 @@
       
       <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
 
-      <!-- 3D Target Anchor (Appears on top of physical card when scanned) -->
-      <a-entity id="card-target" mindar-image-target="targetIndex: 0">
-        
-        <!-- Luxury Matte Card 3D Base -->
-        <a-plane position="0 0 0" height="0.65" width="1.0" material="color: #0a0a0a; metalness: 0.9; roughness: 0.1; opacity: 0.9"></a-plane>
-        <a-plane position="0 0 -0.001" height="0.68" width="1.03" material="color: #D4AF37; metalness: 1.0"></a-plane>
-
-        <!-- Animated Glowing Ring -->
-        <a-ring position="0 0 0.01" radius-inner="0.2" radius-outer="0.22" color="#D4AF37"
-          animation="property: scale; to: 1.2 1.2 1.2; dir: alternate; loop: true; dur: 1500; easing: easeInOutSine">
-        </a-ring>
-
-        <!-- 3D Text Header -->
-        <a-text value="LINKED!" color="#D4AF37" align="center" position="0 0 0.05" scale="0.5 0.5 0.5"></a-text>
-        
-      </a-entity>
+      <!-- Target Anchor (Pure reference, no 3D elements inside) -->
+      <a-entity id="card-target" mindar-image-target="targetIndex: 0"></a-entity>
     </a-scene>
 
     <script>
@@ -164,23 +165,20 @@
       const statusBadge = document.querySelector('#status-badge');
       const arGui = document.querySelector('#ar-gui');
 
-      // CARD FOUND: Trigger 3D tracking & slide up GUI
+      // CARD FOUND: Slide up the glassmorphism popup smoothly
       targetEl.addEventListener('targetFound', () => {
         statusBadge.innerText = "✨ Card Recognized";
         statusBadge.style.color = "#4ade80";
         statusBadge.style.borderColor = "#4ade80";
         
-        // Slide up the GUI overlay
         arGui.classList.add('active');
       });
 
-      // CARD LOST: Keep GUI active on screen so user can click anytime
+      // CARD LOST: Keep popup on screen so user can tap links comfortably
       targetEl.addEventListener('targetLost', () => {
         statusBadge.innerText = "📱 Screen Mode (Active)";
         statusBadge.style.color = "#d4af37";
         statusBadge.style.borderColor = "#d4af37";
-        
-        // GUI stays visible!
       });
     </script>
   </body>
