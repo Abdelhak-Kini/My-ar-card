@@ -48,10 +48,10 @@
         cursor="fuse: false; rayOrigin: mouse" 
         raycaster="far: 10000; objects: .clickable">
         
-        <!-- AR CONTENT (Floating inside camera view) -->
+        <!-- AR CONTENT -->
         <a-entity id="ar-content" position="0 0 -1.0" scale="0.8 0.8 0.8" visible="false">
           
-          <!-- Base Dark Frame -->
+          <!-- Base Frame -->
           <a-plane position="0 0 0" height="0.6" width="0.9" material="color: #0f172a; opacity: 0.95; metalness: 0.5"></a-plane>
 
           <!-- Gold Border Line -->
@@ -60,7 +60,7 @@
           <!-- Header Title -->
           <a-text value="SELECT PLATFORM" color="#FFD700" align="center" position="0 0.18 0.05" scale="0.4 0.4 0.4"></a-text>
 
-          <!-- HIGH VISIBILITY TIKTOK BUTTON (Left side, raised forward Z=0.08) -->
+          <!-- TIKTOK BUTTON -->
           <a-plane 
             id="tiktok-btn" 
             class="clickable" 
@@ -69,12 +69,11 @@
             height="0.22" 
             width="0.38" 
             material="shader: flat; opacity: 1">
-            <!-- White border around button -->
             <a-plane position="0 0 -0.001" height="0.24" width="0.4" color="#00f2fe"></a-plane>
             <a-text value="TikTok" color="#00f2fe" align="center" position="0 0 0.02" scale="0.38 0.38 0.38"></a-text>
           </a-plane>
 
-          <!-- HIGH VISIBILITY INSTAGRAM BUTTON (Right side, raised forward Z=0.08) -->
+          <!-- INSTAGRAM BUTTON -->
           <a-plane 
             id="insta-btn" 
             class="clickable" 
@@ -83,7 +82,6 @@
             height="0.22" 
             width="0.38" 
             material="shader: flat; opacity: 1">
-            <!-- White border around button -->
             <a-plane position="0 0 -0.001" height="0.24" width="0.4" color="#FFFFFF"></a-plane>
             <a-text value="Instagram" color="#FFFFFF" align="center" position="0 0 0.02" scale="0.38 0.38 0.38"></a-text>
           </a-plane>
@@ -119,7 +117,6 @@
         }
       }
 
-      // 1. CARD DETECTED: Show 3D window and lock to card
       targetEl.addEventListener('targetFound', () => {
         isTracking = true;
         contentEl.setAttribute('visible', 'true');
@@ -131,7 +128,6 @@
         updateARPosition();
       });
 
-      // 2. CARD LOST: Lock window 1 meter ahead of lens so buttons stay visible on screen
       targetEl.addEventListener('targetLost', () => {
         isTracking = false;
 
@@ -139,19 +135,18 @@
         statusBadge.style.color = "#FFD700";
         statusBadge.style.borderColor = "#FFD700";
 
-        // Reset to front-and-center position
         contentEl.object3D.position.set(0, 0, -1.0);
         contentEl.object3D.quaternion.set(0, 0, 0, 1);
         contentEl.object3D.scale.set(0.8, 0.8, 0.8);
       });
 
-      // Click Action Handlers
+      // Updated Click Actions with Your Handles
       document.querySelector('#tiktok-btn').addEventListener('click', () => {
-        window.location.href = 'https://www.tiktok.com/@your_handle';
+        window.location.href = 'https://www.tiktok.com/@cold_spice_18';
       });
 
       document.querySelector('#insta-btn').addEventListener('click', () => {
-        window.location.href = 'https://www.instagram.com/your_handle';
+        window.location.href = 'https://www.instagram.com/abdelhak_kini/';
       });
     </script>
   </body>
