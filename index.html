@@ -43,7 +43,7 @@
         -webkit-backdrop-filter: blur(25px);
         border: 1px solid rgba(212, 175, 55, 0.4);
         border-radius: 32px;
-        padding: 40px 24px 36px 24px;
+        padding: 36px 24px 32px 24px;
         text-align: center;
         box-shadow: 0 30px 60px rgba(0, 0, 0, 0.8), 0 0 30px rgba(212, 175, 55, 0.15), inset 0 1px 1px rgba(255, 255, 255, 0.2);
         transform-style: preserve-3d;
@@ -56,22 +56,24 @@
         to { opacity: 1; transform: translateY(0) scale(1); }
       }
 
-      /* Logo Wrapper with Metallic Gold Glow */
+      /* Dynamic Gold Sweep Ring around Logo */
       .logo-wrapper {
         position: relative;
         width: 105px;
         height: 105px;
-        margin: 0 auto 22px auto;
+        margin: 0 auto 20px auto;
         border-radius: 50%;
         padding: 3px;
-        background: linear-gradient(135deg, #FFE57F, #D4AF37, #996515, #FFE57F);
-        box-shadow: 0 0 25px rgba(212, 175, 55, 0.4);
-        animation: rotateGlow 8s linear infinite;
+        background: linear-gradient(135deg, #FFE57F, #D4AF37, #8A6414, #FFE57F, #D4AF37);
+        background-size: 300% 300%;
+        box-shadow: 0 0 20px rgba(212, 175, 55, 0.35);
+        animation: goldShimmer 4s ease infinite;
       }
 
-      @keyframes rotateGlow {
-        0% { filter: hue-rotate(0deg); }
-        100% { filter: hue-rotate(360deg); }
+      @keyframes goldShimmer {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
       }
 
       .logo-img {
@@ -101,7 +103,7 @@
         text-transform: uppercase;
         letter-spacing: 3px;
         font-weight: 600;
-        margin-bottom: 32px;
+        margin-bottom: 28px;
         opacity: 0.9;
       }
 
@@ -109,7 +111,7 @@
       .links-container {
         display: flex;
         flex-direction: column;
-        gap: 16px;
+        gap: 14px;
       }
 
       .btn {
@@ -119,7 +121,7 @@
         justify-content: center;
         gap: 12px;
         width: 100%;
-        padding: 16px;
+        padding: 15px;
         border-radius: 18px;
         text-decoration: none;
         font-size: 15px;
@@ -133,7 +135,7 @@
         transform: scale(0.95);
       }
 
-      /* Shiny Reflection Effect on Buttons */
+      /* Subtle Reflection Effect on Buttons */
       .btn::after {
         content: '';
         position: absolute;
@@ -156,18 +158,25 @@
         background: #000000;
         color: #00f2fe;
         border: 1px solid rgba(0, 242, 254, 0.5);
-        box-shadow: 0 4px 25px rgba(0, 242, 254, 0.2);
+        box-shadow: 0 4px 20px rgba(0, 242, 254, 0.18);
       }
 
       .btn-insta {
         background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
         color: #ffffff;
         border: 1px solid rgba(255, 255, 255, 0.2);
-        box-shadow: 0 4px 25px rgba(220, 39, 67, 0.3);
+        box-shadow: 0 4px 20px rgba(220, 39, 67, 0.25);
+      }
+
+      .btn-facebook {
+        background: linear-gradient(135deg, #1877f2, #0b51b3);
+        color: #ffffff;
+        border: 1px solid rgba(24, 119, 242, 0.4);
+        box-shadow: 0 4px 20px rgba(24, 119, 242, 0.25);
       }
 
       .footer-note {
-        margin-top: 32px;
+        margin-top: 26px;
         font-size: 10px;
         color: rgba(212, 175, 55, 0.6);
         letter-spacing: 2px;
@@ -200,18 +209,18 @@
           <a href="https://www.instagram.com/abdelhak_kini/" target="_blank" class="btn btn-insta">
             Instagram Profile
           </a>
+
+          <a href="https://www.facebook.com/profile.php?id=61554998019618" target="_blank" class="btn btn-facebook">
+            Facebook Page
+          </a>
         </div>
 
-        <div class="footer-note">Tap screen for gold sparks</div>
+        <div class="footer-note">Scan & Connect</div>
       </div>
     </div>
 
     <script>
-      /* --- 1. How to Add Your Logo Image --- */
-      // Place your logo image inside your repo named 'logo.png' 
-      // or change the src attribute above to your image link.
-
-      /* --- 2. 3D Card Interactive Tilt Effect --- */
+      /* --- 3D Card Interactive Tilt Effect --- */
       const card = document.getElementById('tilt-card');
       window.addEventListener('mousemove', (e) => {
         const xAxis = (window.innerWidth / 2 - e.pageX) / 25;
@@ -219,7 +228,7 @@
         card.style.transform = `rotateY(${xAxis}deg) rotateX(${yAxis}deg)`;
       });
 
-      /* --- 3. Three.js Background with Gold Particles & Interactive Sparks --- */
+      /* --- Three.js Background with Gold Particles --- */
       const canvas = document.querySelector('#bg-canvas');
       const scene = new THREE.Scene();
       const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
