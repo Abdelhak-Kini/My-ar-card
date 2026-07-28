@@ -2,27 +2,270 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Connecting...</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+    <title>COLD SPICE | Digital Card</title>
+
+    <!-- Three.js for 3D Particle Effects -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
     <style>
-      body {
-        background: #0d0d0d;
-        color: #d4af37;
-        font-family: -apple-system, sans-serif;
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+      body, html { width: 100%; height: 100%; overflow: hidden; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #050507; color: #ffffff; }
+
+      /* 3D Animated Background Canvas */
+      #bg-canvas {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 1;
+      }
+
+      /* Container */
+      .container {
+        position: relative;
+        z-index: 2;
         display: flex;
         align-items: center;
         justify-content: center;
-        height: 100vh;
-        margin: 0;
+        min-height: 100vh;
+        padding: 20px;
+        perspective: 1000px;
+      }
+
+      /* Luxury Glassmorphism Card */
+      .card {
+        width: 100%;
+        max-width: 380px;
+        background: linear-gradient(145deg, rgba(22, 22, 28, 0.85), rgba(10, 10, 12, 0.95));
+        backdrop-filter: blur(25px);
+        -webkit-backdrop-filter: blur(25px);
+        border: 1px solid rgba(212, 175, 55, 0.4);
+        border-radius: 32px;
+        padding: 40px 24px 36px 24px;
+        text-align: center;
+        box-shadow: 0 30px 60px rgba(0, 0, 0, 0.8), 0 0 30px rgba(212, 175, 55, 0.15), inset 0 1px 1px rgba(255, 255, 255, 0.2);
+        transform-style: preserve-3d;
+        transition: transform 0.15s ease-out, box-shadow 0.3s ease;
+        animation: cardAppear 1s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+
+      @keyframes cardAppear {
+        from { opacity: 0; transform: translateY(40px) scale(0.92); }
+        to { opacity: 1; transform: translateY(0) scale(1); }
+      }
+
+      /* Logo Wrapper with Metallic Gold Glow */
+      .logo-wrapper {
+        position: relative;
+        width: 105px;
+        height: 105px;
+        margin: 0 auto 22px auto;
+        border-radius: 50%;
+        padding: 3px;
+        background: linear-gradient(135deg, #FFE57F, #D4AF37, #996515, #FFE57F);
+        box-shadow: 0 0 25px rgba(212, 175, 55, 0.4);
+        animation: rotateGlow 8s linear infinite;
+      }
+
+      @keyframes rotateGlow {
+        0% { filter: hue-rotate(0deg); }
+        100% { filter: hue-rotate(360deg); }
+      }
+
+      .logo-img {
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        object-fit: cover;
+        background: #000;
+        display: block;
+      }
+
+      /* Metallic Gold Title */
+      h1 {
+        font-size: 24px;
+        font-weight: 800;
+        letter-spacing: 2px;
+        margin-bottom: 6px;
+        background: linear-gradient(135deg, #FFFFFF 20%, #FFE57F 60%, #D4AF37 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        text-shadow: 0 2px 10px rgba(212, 175, 55, 0.2);
+      }
+
+      .title {
+        color: #D4AF37;
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 3px;
+        font-weight: 600;
+        margin-bottom: 32px;
+        opacity: 0.9;
+      }
+
+      /* Social Links Stack */
+      .links-container {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+
+      .btn {
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        width: 100%;
+        padding: 16px;
+        border-radius: 18px;
+        text-decoration: none;
+        font-size: 15px;
+        font-weight: 700;
+        letter-spacing: 1px;
+        overflow: hidden;
+        transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease;
+      }
+
+      .btn:active {
+        transform: scale(0.95);
+      }
+
+      /* Shiny Reflection Effect on Buttons */
+      .btn::after {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: linear-gradient(60deg, transparent, rgba(255, 255, 255, 0.15), transparent);
+        transform: rotate(30deg);
+        animation: shine 4s infinite;
+      }
+
+      @keyframes shine {
+        0% { transform: translateX(-100%) rotate(30deg); }
+        20% { transform: translateX(100%) rotate(30deg); }
+        100% { transform: translateX(100%) rotate(30deg); }
+      }
+
+      .btn-tiktok {
+        background: #000000;
+        color: #00f2fe;
+        border: 1px solid rgba(0, 242, 254, 0.5);
+        box-shadow: 0 4px 25px rgba(0, 242, 254, 0.2);
+      }
+
+      .btn-insta {
+        background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
+        color: #ffffff;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        box-shadow: 0 4px 25px rgba(220, 39, 67, 0.3);
+      }
+
+      .footer-note {
+        margin-top: 32px;
+        font-size: 10px;
+        color: rgba(212, 175, 55, 0.6);
+        letter-spacing: 2px;
+        text-transform: uppercase;
       }
     </style>
   </head>
   <body>
-    <p>Opening Social Profile...</p>
+
+    <!-- 3D Particle Canvas -->
+    <canvas id="bg-canvas"></canvas>
+
+    <div class="container">
+      <div class="card" id="tilt-card">
+        
+        <!-- Logo Image -->
+        <div class="logo-wrapper">
+          <img src="logo.png" alt="COLD SPICE Logo" class="logo-img" id="card-logo" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+          <div style="display:none; width:100%; height:100%; border-radius:50%; background:#111; color:#D4AF37; align-items:center; justify-content:center; font-weight:800; font-size:24px;">CS</div>
+        </div>
+
+        <h1>COLD SPICE</h1>
+        <div class="title">Official Digital Portal</div>
+
+        <div class="links-container">
+          <a href="https://www.tiktok.com/@cold_spice_18" target="_blank" class="btn btn-tiktok">
+            TikTok Profile
+          </a>
+
+          <a href="https://www.instagram.com/abdelhak_kini/" target="_blank" class="btn btn-insta">
+            Instagram Profile
+          </a>
+        </div>
+
+        <div class="footer-note">Tap screen for gold sparks</div>
+      </div>
+    </div>
 
     <script>
-      // Automatically redirect to your main profile as soon as the page loads
-      window.location.href = "https://www.instagram.com/abdelhak_kini/";
+      /* --- 1. How to Add Your Logo Image --- */
+      // Place your logo image inside your repo named 'logo.png' 
+      // or change the src attribute above to your image link.
+
+      /* --- 2. 3D Card Interactive Tilt Effect --- */
+      const card = document.getElementById('tilt-card');
+      window.addEventListener('mousemove', (e) => {
+        const xAxis = (window.innerWidth / 2 - e.pageX) / 25;
+        const yAxis = (window.innerHeight / 2 - e.pageY) / 25;
+        card.style.transform = `rotateY(${xAxis}deg) rotateX(${yAxis}deg)`;
+      });
+
+      /* --- 3. Three.js Background with Gold Particles & Interactive Sparks --- */
+      const canvas = document.querySelector('#bg-canvas');
+      const scene = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+      const renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true, antialias: true });
+
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+      // Floating Ambient Gold Particles
+      const particleCount = 200;
+      const geometry = new THREE.BufferGeometry();
+      const positions = new Float32Array(particleCount * 3);
+
+      for (let i = 0; i < particleCount * 3; i++) {
+        positions[i] = (Math.random() - 0.5) * 12;
+      }
+
+      geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+
+      const material = new THREE.PointsMaterial({
+        size: 0.035,
+        color: 0xD4AF37,
+        transparent: true,
+        opacity: 0.75
+      });
+
+      const particleSystem = new THREE.Points(geometry, material);
+      scene.add(particleSystem);
+
+      camera.position.z = 3.5;
+
+      // Animation Loop
+      function animate() {
+        requestAnimationFrame(animate);
+        particleSystem.rotation.y += 0.0012;
+        particleSystem.rotation.x += 0.0006;
+        renderer.render(scene, camera);
+      }
+      animate();
+
+      // Screen Resize
+      window.addEventListener('resize', () => {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+      });
     </script>
   </body>
 </html>
