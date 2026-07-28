@@ -2,63 +2,27 @@
 <html>
   <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
-    <title>3D AR Business Card</title>
-    
-    <!-- A-Frame & MindAR Libraries -->
+    <title>AR Business Card</title>
+
     <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
 
-    <!-- Custom Touch Drag-to-Rotate Component for 360 View -->
-    <script>
-      AFRAME.registerComponent('drag-rotate', {
-        init: function () {
-          this.ifMouseDown = false;
-          this.x_cord = 0;
-
-          const onStart = (x) => {
-            this.ifMouseDown = true;
-            this.x_cord = x;
-          };
-
-          const onMove = (x) => {
-            if (this.ifMouseDown) {
-              const temp_x = x - this.x_cord;
-              this.el.object3D.rotation.y += temp_x * 0.005;
-              this.x_cord = x;
-            }
-          };
-
-          const onEnd = () => {
-            this.ifMouseDown = false;
-          };
-
-          window.addEventListener('mousedown', (e) => onStart(e.clientX));
-          window.addEventListener('touchstart', (e) => onStart(e.touches[0].clientX));
-
-          window.addEventListener('mousemove', (e) => onMove(e.clientX));
-          window.addEventListener('touchmove', (e) => onMove(e.touches[0].clientX));
-
-          window.addEventListener('mouseup', onEnd);
-          window.addEventListener('touchend', onEnd);
-        }
-      });
-    </script>
-
     <style>
-      /* Status indicator overlay */
-      #status-overlay {
+      #status-badge {
         position: fixed;
-        bottom: 20px;
+        top: 20px;
         left: 50%;
         transform: translateX(-50%);
-        background: rgba(15, 23, 42, 0.85);
-        color: #f8fafc;
-        padding: 10px 20px;
-        border-radius: 20px;
-        font-family: sans-serif;
-        font-size: 14px;
-        border: 1px solid rgba(255, 215, 0, 0.4);
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        background: rgba(10, 10, 10, 0.85);
+        color: #d4af37;
+        padding: 8px 18px;
+        border-radius: 25px;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        font-size: 13px;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        border: 1px solid rgba(212, 175, 55, 0.4);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
         z-index: 9999;
         pointer-events: none;
         transition: all 0.3s ease;
@@ -67,115 +31,155 @@
   </head>
   <body>
 
-    <!-- UI Overlay for Tracking Status -->
-    <div id="status-overlay">Scan Your Business Card</div>
+    <!-- Top Status Indicator -->
+    <div id="status-badge">Scan Business Card</div>
 
     <a-scene 
-      mindar-image="imageTargetSrc: ./targets.mind; filterMinCF: 0.0001; filterBeta: 0.001;" 
+      mindar-image="imageTargetSrc: ./targets.mind; autoStart: true; uiScanning: no;" 
       color-space="sRGB" 
       renderer="colorManagement: true, physicallyCorrectLights" 
       vr-mode-ui="enabled: false" 
       device-orientation-permission-ui="enabled: false">
       
-      <!-- Camera configured with raycaster for clicking buttons -->
+      <!-- Camera with Raycaster for Taps -->
       <a-camera 
+        id="main-camera"
         position="0 0 0" 
         look-controls="enabled: false" 
         cursor="fuse: false; rayOrigin: mouse" 
         raycaster="far: 10000; objects: .clickable">
       </a-camera>
 
-      <!-- Target Entity -->
-      <a-entity id="card-target" mindar-image-target="targetIndex: 0">
+      <!-- Target Anchor (Invisible tracker) -->
+      <a-entity id="card-target" mindar-image-target="targetIndex: 0"></a-entity>
+
+      <!-- Decoupled AR Content (Stays active independently) -->
+      <a-entity id="ar-content" visible="false">
         
-        <!-- Interactive 360-degree Rotatable Container -->
-        <a-entity id="rotatable-container" drag-rotate position="0 0 0">
-          
-          <!-- Modern Glassmorphism Backplate Frame -->
-          <a-plane 
-            position="0 0 0" 
-            height="0.7" 
-            width="1.1" 
-            material="color: #0f172a; opacity: 0.85; transparent: true; metalness: 0.8; roughness: 0.2" 
-            geometry="primitive: plane">
-          </a-plane>
+        <!-- Luxury Matte Card Base -->
+        <a-plane 
+          position="0 0 0" 
+          height="0.65" 
+          width="1.0" 
+          material="color: #121212; metalness: 0.9; roughness: 0.1; opacity: 0.95" 
+          geometry="primitive: plane">
+        </a-plane>
 
-          <!-- Outer Metallic Gold Border -->
-          <a-ring position="0 0 0.01" radius-inner="0.48" radius-outer="0.5" color="#FFD700" opacity="0.6"
-            animation="property: rotation; to: 0 0 360; loop: true; dur: 12000; easing: linear">
-          </a-ring>
+        <!-- Outer Gold Trim -->
+        <a-plane 
+          position="0 0 0.001" 
+          height="0.67" 
+          width="1.02" 
+          material="color: #D4AF37; metalness: 1.0; roughness: 0.2">
+        </a-plane>
 
-          <!-- Floating Header Text -->
-          <a-text 
-            value="CONNECT WITH US" 
-            color="#FFD700" 
-            align="center" 
-            position="0 0.22 0.05" 
-            scale="0.35 0.35 0.35" 
-            font="kelsonsans">
-          </a-text>
+        <!-- Main Title -->
+        <a-text 
+          value="SICKO PRINTS" 
+          color="#FFFFFF" 
+          align="center" 
+          position="0 0.18 0.03" 
+          scale="0.45 0.45 0.45" 
+          font="kelsonsans">
+        </a-text>
 
-          <!-- TIKTOK BUTTON -->
-          <a-plane 
-            id="tiktok-btn" 
-            class="clickable" 
-            color="#000000" 
-            position="-0.27 -0.05 0.05" 
-            height="0.18" 
-            width="0.42" 
-            material="opacity: 0.95; transparent: true">
-            <a-text value="TikTok" color="#00f2fe" align="center" position="0 0 0.02" scale="0.3 0.3 0.3"></a-text>
-          </a-plane>
+        <!-- Subtitle -->
+        <a-text 
+          value="CUSTOM PRINTING & DESIGN" 
+          color="#D4AF37" 
+          align="center" 
+          position="0 0.10 0.03" 
+          scale="0.22 0.22 0.22">
+        </a-text>
 
-          <!-- INSTAGRAM BUTTON -->
-          <a-plane 
-            id="insta-btn" 
-            class="clickable" 
-            color="#E1306C" 
-            position="0.27 -0.05 0.05" 
-            height="0.18" 
-            width="0.42" 
-            material="opacity: 0.95; transparent: true">
-            <a-text value="Instagram" color="#FFFFFF" align="center" position="0 0 0.02" scale="0.3 0.3 0.3"></a-text>
-          </a-plane>
+        <!-- TIKTOK BUTTON -->
+        <a-plane 
+          id="tiktok-btn" 
+          class="clickable" 
+          color="#1a1a1a" 
+          position="-0.24 -0.10 0.04" 
+          height="0.18" 
+          width="0.4" 
+          material="metalness: 0.8; roughness: 0.2"
+          animation="property: position; to: -0.24 -0.08 0.04; dir: alternate; loop: true; dur: 2000; easing: easeInOutSine">
+          <a-text value="TikTok" color="#00f2fe" align="center" position="0 0 0.01" scale="0.32 0.32 0.32"></a-text>
+        </a-plane>
 
-          <!-- Instruction Sub-text -->
-          <a-text 
-            value="Swipe on screen to rotate 360°" 
-            color="#94a3b8" 
-            align="center" 
-            position="0 -0.22 0.05" 
-            scale="0.22 0.22 0.22">
-          </a-text>
+        <!-- INSTAGRAM BUTTON -->
+        <a-plane 
+          id="insta-btn" 
+          class="clickable" 
+          color="#1a1a1a" 
+          position="0.24 -0.10 0.04" 
+          height="0.18" 
+          width="0.4" 
+          material="metalness: 0.8; roughness: 0.2"
+          animation="property: position; to: 0.24 -0.08 0.04; dir: alternate; loop: true; dur: 2000; easing: easeInOutSine; delay: 500">
+          <a-text value="Instagram" color="#E1306C" align="center" position="0 0 0.01" scale="0.32 0.32 0.32"></a-text>
+        </a-plane>
 
-        </a-entity>
       </a-entity>
     </a-scene>
 
     <script>
       const targetEl = document.querySelector('#card-target');
-      const statusOverlay = document.querySelector('#status-overlay');
-      const tiktokBtn = document.querySelector('#tiktok-btn');
-      const instaBtn = document.querySelector('#insta-btn');
+      const contentEl = document.querySelector('#ar-content');
+      const cameraEl = document.querySelector('#main-camera');
+      const statusBadge = document.querySelector('#status-badge');
 
-      // State Management: Listen for Target Recognition
+      let isTracking = false;
+
+      // Update 3D position while target is in camera view
+      function updatePosition() {
+        if (isTracking) {
+          const position = new THREE.Vector3();
+          const quaternion = new THREE.Quaternion();
+          const scale = new THREE.Vector3();
+
+          targetEl.object3D.matrixWorld.decompose(position, quaternion, scale);
+
+          contentEl.object3D.position.copy(position);
+          contentEl.object3D.quaternion.copy(quaternion);
+          contentEl.object3D.scale.copy(scale);
+
+          requestAnimationFrame(updatePosition);
+        }
+      }
+
+      // CARD FOUND: Snap content directly onto the paper card
       targetEl.addEventListener('targetFound', () => {
-        statusOverlay.innerText = "✨ Card Recognized";
-        statusOverlay.style.background = "rgba(16, 185, 129, 0.85)"; // Green indicator
+        isTracking = true;
+        contentEl.setAttribute('visible', 'true');
+        
+        statusBadge.innerText = "✨ Linked to Card";
+        statusBadge.style.color = "#4ade80";
+        statusBadge.style.borderColor = "#4ade80";
+
+        updatePosition();
       });
 
+      // CARD LOST: Dock content right in front of camera screen so user can keep using it
       targetEl.addEventListener('targetLost', () => {
-        statusOverlay.innerText = "Scan Your Business Card";
-        statusOverlay.style.background = "rgba(15, 23, 42, 0.85)";
+        isTracking = false;
+
+        statusBadge.innerText = "📱 Free Screen View Mode";
+        statusBadge.style.color = "#d4af37";
+        statusBadge.style.borderColor = "#d4af37";
+
+        // Lock to camera view position
+        contentEl.object3D.position.set(0, 0, -1.2);
+        contentEl.object3D.quaternion.set(0, 0, 0, 1);
+        contentEl.object3D.scale.set(1, 1, 1);
+        cameraEl.object3D.add(contentEl.object3D);
       });
 
-      // Click Event Listeners
-      tiktokBtn.addEventListener('click', () => {
-        window.location.href = 'https://www.tiktok.com/@your_handle';
+      // BUTTON CLICK ACTIONS
+      document.querySelector('#tiktok-btn').addEventListener('click', () => {
+        window.location.href = 'https://www.tiktok.com/@cold_spice_18';
       });
 
-      instaBtn.addEventListener('click', () => {
-        window.location.href = 'https://www.instagram.com/your_handle';
+      document.querySelector('#insta-btn').addEventListener('click', () => {
+        window.location.href = 'https://www.instagram.com/abdelhak_kini/';
       });
     </script>
   </body>
