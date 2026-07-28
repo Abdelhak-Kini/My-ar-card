@@ -1,184 +1,224 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
+    <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
-    <title>AR Business Card</title>
+    <title>Abdelhak Kini | Digital Card</title>
 
-    <!-- A-Frame & MindAR -->
-    <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
+    <!-- Three.js for Animated 3D Background -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 
     <style>
       * { box-sizing: border-box; margin: 0; padding: 0; }
-      body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; overflow: hidden; background: #000; }
+      body, html { width: 100%; height: 100%; overflow: hidden; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #08080a; color: #ffffff; }
 
-      /* Status Badge */
-      #status-badge {
+      /* 3D Canvas Background */
+      #bg-canvas {
         position: fixed;
-        top: 24px;
-        left: 50%;
-        transform: translateX(-50%);
-        background: rgba(15, 23, 42, 0.85);
-        color: #d4af37;
-        padding: 8px 20px;
-        border-radius: 30px;
-        font-size: 13px;
-        font-weight: 600;
-        letter-spacing: 0.5px;
-        border: 1px solid rgba(212, 175, 55, 0.4);
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-        z-index: 9999;
-        pointer-events: none;
-        transition: all 0.4s ease;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 1;
       }
 
-      /* Ultra-Smooth HTML Pop-up GUI */
-      #ar-gui {
-        position: fixed;
-        bottom: 0;
-        left: 50%;
-        width: 90%;
-        max-width: 380px;
-        background: rgba(15, 15, 15, 0.88);
-        backdrop-filter: blur(20px);
-        -webkit-backdrop-filter: blur(20px);
-        border: 1px solid rgba(212, 175, 55, 0.3);
-        border-bottom: none;
-        border-radius: 24px 24px 0 0;
-        padding: 24px 20px 32px 20px;
-        box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.8);
-        z-index: 9998;
-        
-        /* Smooth Entrance Physics */
-        transform: translate(-50%, 100%);
-        opacity: 0;
-        transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease;
-      }
-
-      /* Active state on scan */
-      #ar-gui.active {
-        transform: translate(-50%, 0%);
-        opacity: 1;
-      }
-
-      /* Subtle drag handle indicator at top of card */
-      .card-handle {
-        width: 36px;
-        height: 4px;
-        background: rgba(255, 255, 255, 0.2);
-        border-radius: 2px;
-        margin: 0 auto 16px auto;
-      }
-
-      #ar-gui h2 {
-        color: #ffffff;
-        font-size: 18px;
-        font-weight: 700;
-        margin-bottom: 4px;
-        letter-spacing: 0.5px;
-        text-align: center;
-      }
-
-      #ar-gui p {
-        color: #d4af37;
-        font-size: 11px;
-        text-transform: uppercase;
-        letter-spacing: 1.5px;
-        margin-bottom: 20px;
-        text-align: center;
-      }
-
-      .btn-container {
-        display: flex;
-        gap: 12px;
-      }
-
-      .social-btn {
-        flex: 1;
-        padding: 14px 10px;
-        border-radius: 14px;
-        text-decoration: none;
-        font-size: 14px;
-        font-weight: 700;
+      /* Container */
+      .container {
+        position: relative;
+        z-index: 2;
         display: flex;
         align-items: center;
         justify-content: center;
-        gap: 8px;
+        min-height: 100vh;
+        padding: 20px;
+      }
+
+      /* Glassmorphism Profile Card */
+      .card {
+        width: 100%;
+        max-width: 380px;
+        background: rgba(18, 18, 22, 0.75);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid rgba(212, 175, 55, 0.35);
+        border-radius: 28px;
+        padding: 36px 24px;
+        text-align: center;
+        box-shadow: 0 30px 60px rgba(0, 0, 0, 0.6), inset 0 0 1px rgba(255, 255, 255, 0.1);
+        animation: cardAppear 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+
+      @keyframes cardAppear {
+        from { opacity: 0; transform: translateY(30px) scale(0.95); }
+        to { opacity: 1; transform: translateY(0) scale(1); }
+      }
+
+      /* Avatar Ring */
+      .avatar-wrapper {
+        position: relative;
+        width: 90px;
+        height: 90px;
+        margin: 0 auto 20px auto;
+        border-radius: 50%;
+        padding: 3px;
+        background: linear-gradient(135deg, #d4af37, #ffd700, #b8860b);
+        box-shadow: 0 8px 25px rgba(212, 175, 55, 0.3);
+      }
+
+      .avatar {
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        background: #111;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 28px;
+        font-weight: 800;
+        color: #d4af37;
+      }
+
+      h1 {
+        font-size: 22px;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        margin-bottom: 6px;
+        color: #ffffff;
+      }
+
+      .title {
+        color: #d4af37;
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        font-weight: 600;
+        margin-bottom: 28px;
+      }
+
+      /* Social Links Stack */
+      .links-container {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+      }
+
+      .btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        width: 100%;
+        padding: 16px;
+        border-radius: 16px;
+        text-decoration: none;
+        font-size: 15px;
+        font-weight: 700;
+        letter-spacing: 0.3px;
         transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease;
       }
 
-      .social-btn:active {
-        transform: scale(0.94);
+      .btn:active {
+        transform: scale(0.96);
       }
 
       .btn-tiktok {
         background: #000000;
         color: #00f2fe;
-        border: 1px solid rgba(0, 242, 254, 0.6);
+        border: 1px solid rgba(0, 242, 254, 0.5);
         box-shadow: 0 4px 20px rgba(0, 242, 254, 0.15);
       }
 
       .btn-insta {
         background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
         color: #ffffff;
-        border: none;
         box-shadow: 0 4px 20px rgba(220, 39, 67, 0.25);
+      }
+
+      .footer-note {
+        margin-top: 28px;
+        font-size: 11px;
+        color: rgba(255, 255, 255, 0.4);
+        letter-spacing: 1px;
+        text-transform: uppercase;
       }
     </style>
   </head>
   <body>
 
-    <!-- Top Status Indicator -->
-    <div id="status-badge">Scan Business Card</div>
+    <!-- 3D Animated Particle Background Canvas -->
+    <canvas id="bg-canvas"></canvas>
 
-    <!-- On-Screen HTML Overlay -->
-    <div id="ar-gui">
-      <div class="card-handle"></div>
-      <h2>ABDELHAK KINI</h2>
-      <p>Connect On Socials</p>
-      <div class="btn-container">
-        <a href="https://www.tiktok.com/@cold_spice_18" target="_blank" class="social-btn btn-tiktok">
-          TikTok
-        </a>
-        <a href="https://www.instagram.com/abdelhak_kini/" target="_blank" class="social-btn btn-insta">
-          Instagram
-        </a>
+    <div class="container">
+      <div class="card">
+        
+        <div class="avatar-wrapper">
+          <div class="avatar">AK</div>
+        </div>
+
+        <h1>ABDELHAK KINI</h1>
+        <div class="title">Digital Creator</div>
+
+        <div class="links-container">
+          <a href="https://www.tiktok.com/@cold_spice_18" target="_blank" class="btn btn-tiktok">
+            TikTok Profile
+          </a>
+
+          <a href="https://www.instagram.com/abdelhak_kini/" target="_blank" class="btn btn-insta">
+            Instagram Profile
+          </a>
+        </div>
+
+        <div class="footer-note">Scan & Connect</div>
       </div>
     </div>
 
-    <!-- Clean MindAR Scene without 3D Boxes -->
-    <a-scene 
-      mindar-image="imageTargetSrc: ./targets.mind; autoStart: true; uiScanning: no;" 
-      color-space="sRGB" 
-      renderer="colorManagement: true, physicallyCorrectLights" 
-      vr-mode-ui="enabled: false" 
-      device-orientation-permission-ui="enabled: false">
-      
-      <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
-
-      <!-- Target Anchor (Pure reference, no 3D elements inside) -->
-      <a-entity id="card-target" mindar-image-target="targetIndex: 0"></a-entity>
-    </a-scene>
-
+    <!-- Background 3D Animation Script -->
     <script>
-      const targetEl = document.querySelector('#card-target');
-      const statusBadge = document.querySelector('#status-badge');
-      const arGui = document.querySelector('#ar-gui');
+      const canvas = document.querySelector('#bg-canvas');
+      const scene = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+      const renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true, antialias: true });
 
-      // CARD FOUND: Slide up the glassmorphism popup smoothly
-      targetEl.addEventListener('targetFound', () => {
-        statusBadge.innerText = "✨ Card Recognized";
-        statusBadge.style.color = "#4ade80";
-        statusBadge.style.borderColor = "#4ade80";
-        
-        arGui.classList.add('active');
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+      // Create Floating 3D Gold Particles
+      const particleCount = 150;
+      const geometry = new THREE.BufferGeometry();
+      const positions = new Float32Array(particleCount * 3);
+
+      for (let i = 0; i < particleCount * 3; i++) {
+        positions[i] = (Math.random() - 0.5) * 10;
+      }
+
+      geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+
+      const material = new THREE.PointsMaterial({
+        size: 0.03,
+        color: 0xd4af37,
+        transparent: true,
+        opacity: 0.8
       });
 
-      // CARD LOST: Keep popup on screen so user can tap links comfortably
-      targetEl.addEventListener('targetLost', () => {
-        statusBadge.innerText = "📱 Screen Mode (Active)";
-        statusBadge.style.color = "#d4af37";
-        statusBadge.style.borderColor = "#d4af37";
+      const particleSystem = new THREE.Points(geometry, material);
+      scene.add(particleSystem);
+
+      camera.position.z = 3;
+
+      // Subtle Animation Loop
+      function animate() {
+        requestAnimationFrame(animate);
+        particleSystem.rotation.y += 0.0015;
+        particleSystem.rotation.x += 0.0008;
+        renderer.render(scene, camera);
+      }
+      animate();
+
+      // Handle Screen Resize
+      window.addEventListener('resize', () => {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
       });
     </script>
   </body>
