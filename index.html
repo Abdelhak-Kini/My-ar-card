@@ -9,30 +9,129 @@
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
 
     <style>
+      /* Reset & Global styles */
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+      body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; overflow: hidden; }
+
+      /* Top Status Badge */
       #status-badge {
         position: fixed;
         top: 20px;
         left: 50%;
         transform: translateX(-50%);
-        background: rgba(15, 15, 15, 0.95);
+        background: rgba(15, 23, 42, 0.9);
         color: #d4af37;
-        padding: 10px 22px;
-        border-radius: 25px;
-        font-family: sans-serif;
-        font-size: 14px;
+        padding: 8px 20px;
+        border-radius: 30px;
+        font-size: 13px;
         font-weight: 600;
-        border: 1.5px solid rgba(212, 175, 55, 0.8);
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
+        letter-spacing: 0.5px;
+        border: 1px solid rgba(212, 175, 55, 0.5);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
         z-index: 9999;
         pointer-events: none;
         transition: all 0.3s ease;
+      }
+
+      /* Persistent GUI Overlay (Glassmorphism Card) */
+      #ar-gui {
+        position: fixed;
+        bottom: -250px; /* Hidden off-screen initially */
+        left: 50%;
+        transform: translateX(-50%);
+        width: 90%;
+        max-width: 380px;
+        background: rgba(18, 18, 18, 0.85);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border: 1px solid rgba(212, 175, 55, 0.4);
+        border-radius: 20px;
+        padding: 20px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+        z-index: 9998;
+        transition: bottom 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        text-align: center;
+      }
+
+      /* When target found, bring GUI up */
+      #ar-gui.active {
+        bottom: 30px;
+      }
+
+      #ar-gui h2 {
+        color: #ffffff;
+        font-size: 16px;
+        font-weight: 700;
+        margin-bottom: 4px;
+        letter-spacing: 1px;
+      }
+
+      #ar-gui p {
+        color: #d4af37;
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        margin-bottom: 16px;
+      }
+
+      .btn-container {
+        display: flex;
+        gap: 12px;
+      }
+
+      .social-btn {
+        flex: 1;
+        padding: 12px 10px;
+        border-radius: 12px;
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+      }
+
+      .social-btn:active {
+        transform: scale(0.95);
+      }
+
+      .btn-tiktok {
+        background: #000000;
+        color: #00f2fe;
+        border: 1px solid #00f2fe;
+        box-shadow: 0 4px 15px rgba(0, 242, 254, 0.2);
+      }
+
+      .btn-insta {
+        background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
+        color: #ffffff;
+        border: none;
+        box-shadow: 0 4px 15px rgba(220, 39, 67, 0.3);
       }
     </style>
   </head>
   <body>
 
+    <!-- Top Status Indicator -->
     <div id="status-badge">Scan Business Card</div>
 
+    <!-- On-Screen GUI Overlay -->
+    <div id="ar-gui">
+      <h2>ABDELHAK KINI</h2>
+      <p>Connect On Socials</p>
+      <div class="btn-container">
+        <a href="https://www.tiktok.com/@cold_spice_18" target="_blank" class="social-btn btn-tiktok">
+          TikTok
+        </a>
+        <a href="https://www.instagram.com/abdelhak_kini/" target="_blank" class="social-btn btn-insta">
+          Instagram
+        </a>
+      </div>
+    </div>
+
+    <!-- A-Frame AR Scene -->
     <a-scene 
       mindar-image="imageTargetSrc: ./targets.mind; autoStart: true; uiScanning: no;" 
       color-space="sRGB" 
@@ -40,113 +139,48 @@
       vr-mode-ui="enabled: false" 
       device-orientation-permission-ui="enabled: false">
       
-      <!-- Camera -->
-      <a-camera 
-        id="main-camera" 
-        position="0 0 0" 
-        look-controls="enabled: false" 
-        cursor="fuse: false; rayOrigin: mouse" 
-        raycaster="far: 10000; objects: .clickable">
+      <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+
+      <!-- 3D Target Anchor (Appears on top of physical card when scanned) -->
+      <a-entity id="card-target" mindar-image-target="targetIndex: 0">
         
-        <!-- AR CONTENT -->
-        <a-entity id="ar-content" position="0 0 -1.0" scale="0.8 0.8 0.8" visible="false">
-          
-          <!-- Base Frame -->
-          <a-plane position="0 0 0" height="0.6" width="0.9" material="color: #0f172a; opacity: 0.95; metalness: 0.5"></a-plane>
+        <!-- Luxury Matte Card 3D Base -->
+        <a-plane position="0 0 0" height="0.65" width="1.0" material="color: #0a0a0a; metalness: 0.9; roughness: 0.1; opacity: 0.9"></a-plane>
+        <a-plane position="0 0 -0.001" height="0.68" width="1.03" material="color: #D4AF37; metalness: 1.0"></a-plane>
 
-          <!-- Gold Border Line -->
-          <a-plane position="0 0 -0.005" height="0.63" width="0.93" material="color: #D4AF37"></a-plane>
+        <!-- Animated Glowing Ring -->
+        <a-ring position="0 0 0.01" radius-inner="0.2" radius-outer="0.22" color="#D4AF37"
+          animation="property: scale; to: 1.2 1.2 1.2; dir: alternate; loop: true; dur: 1500; easing: easeInOutSine">
+        </a-ring>
 
-          <!-- Header Title -->
-          <a-text value="SELECT PLATFORM" color="#FFD700" align="center" position="0 0.18 0.05" scale="0.4 0.4 0.4"></a-text>
-
-          <!-- TIKTOK BUTTON -->
-          <a-plane 
-            id="tiktok-btn" 
-            class="clickable" 
-            color="#000000" 
-            position="-0.22 -0.05 0.08" 
-            height="0.22" 
-            width="0.38" 
-            material="shader: flat; opacity: 1">
-            <a-plane position="0 0 -0.001" height="0.24" width="0.4" color="#00f2fe"></a-plane>
-            <a-text value="TikTok" color="#00f2fe" align="center" position="0 0 0.02" scale="0.38 0.38 0.38"></a-text>
-          </a-plane>
-
-          <!-- INSTAGRAM BUTTON -->
-          <a-plane 
-            id="insta-btn" 
-            class="clickable" 
-            color="#E1306C" 
-            position="0.22 -0.05 0.08" 
-            height="0.22" 
-            width="0.38" 
-            material="shader: flat; opacity: 1">
-            <a-plane position="0 0 -0.001" height="0.24" width="0.4" color="#FFFFFF"></a-plane>
-            <a-text value="Instagram" color="#FFFFFF" align="center" position="0 0 0.02" scale="0.38 0.38 0.38"></a-text>
-          </a-plane>
-
-        </a-entity>
-      </a-camera>
-
-      <!-- Target Reference -->
-      <a-entity id="card-target" mindar-image-target="targetIndex: 0"></a-entity>
+        <!-- 3D Text Header -->
+        <a-text value="LINKED!" color="#D4AF37" align="center" position="0 0 0.05" scale="0.5 0.5 0.5"></a-text>
+        
+      </a-entity>
     </a-scene>
 
     <script>
       const targetEl = document.querySelector('#card-target');
-      const contentEl = document.querySelector('#ar-content');
-      const cameraEl = document.querySelector('#main-camera');
       const statusBadge = document.querySelector('#status-badge');
+      const arGui = document.querySelector('#ar-gui');
 
-      let isTracking = false;
-      const tempVector = new THREE.Vector3();
-      const tempQuaternion = new THREE.Quaternion();
-      const tempScale = new THREE.Vector3();
-
-      function updateARPosition() {
-        if (isTracking) {
-          targetEl.object3D.matrixWorld.decompose(tempVector, tempQuaternion, tempScale);
-          cameraEl.object3D.worldToLocal(tempVector);
-          
-          contentEl.object3D.position.copy(tempVector);
-          contentEl.object3D.quaternion.copy(tempQuaternion);
-          contentEl.object3D.quaternion.premultiply(cameraEl.object3D.quaternion.clone().invert());
-          
-          requestAnimationFrame(updateARPosition);
-        }
-      }
-
+      // CARD FOUND: Trigger 3D tracking & slide up GUI
       targetEl.addEventListener('targetFound', () => {
-        isTracking = true;
-        contentEl.setAttribute('visible', 'true');
-        
-        statusBadge.innerText = "✨ Linked to Card";
+        statusBadge.innerText = "✨ Card Recognized";
         statusBadge.style.color = "#4ade80";
         statusBadge.style.borderColor = "#4ade80";
-
-        updateARPosition();
+        
+        // Slide up the GUI overlay
+        arGui.classList.add('active');
       });
 
+      // CARD LOST: Keep GUI active on screen so user can click anytime
       targetEl.addEventListener('targetLost', () => {
-        isTracking = false;
-
-        statusBadge.innerText = "📱 Screen View Mode";
-        statusBadge.style.color = "#FFD700";
-        statusBadge.style.borderColor = "#FFD700";
-
-        contentEl.object3D.position.set(0, 0, -1.0);
-        contentEl.object3D.quaternion.set(0, 0, 0, 1);
-        contentEl.object3D.scale.set(0.8, 0.8, 0.8);
-      });
-
-      // Updated Click Actions with Your Handles
-      document.querySelector('#tiktok-btn').addEventListener('click', () => {
-        window.location.href = 'https://www.tiktok.com/@cold_spice_18';
-      });
-
-      document.querySelector('#insta-btn').addEventListener('click', () => {
-        window.location.href = 'https://www.instagram.com/abdelhak_kini/';
+        statusBadge.innerText = "📱 Screen Mode (Active)";
+        statusBadge.style.color = "#d4af37";
+        statusBadge.style.borderColor = "#d4af37";
+        
+        // GUI stays visible!
       });
     </script>
   </body>
