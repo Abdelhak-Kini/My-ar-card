@@ -40,41 +40,41 @@
       vr-mode-ui="enabled: false" 
       device-orientation-permission-ui="enabled: false">
       
-      <!-- Camera -->
+      <!-- Camera with AR Content natively nested inside -->
       <a-camera 
         id="main-camera" 
         position="0 0 0" 
         look-controls="enabled: false" 
         cursor="fuse: false; rayOrigin: mouse" 
         raycaster="far: 10000; objects: .clickable">
+        
+        <!-- AR CONTENT (Lives inside camera so it never disappears) -->
+        <a-entity id="ar-content" position="0 0 -1.2" visible="false">
+          
+          <!-- Base Card Plane -->
+          <a-plane position="0 0 0" height="0.65" width="1.0" material="color: #111111; metalness: 0.8; opacity: 0.95"></a-plane>
+
+          <!-- Gold Border Frame -->
+          <a-plane position="0 0 -0.001" height="0.68" width="1.03" material="color: #D4AF37; metalness: 1.0"></a-plane>
+
+          <!-- Header Text -->
+          <a-text value="CONNECT WITH ME" color="#D4AF37" align="center" position="0 0.18 0.02" scale="0.38 0.38 0.38"></a-text>
+
+          <!-- TikTok Button -->
+          <a-plane id="tiktok-btn" class="clickable" color="#000000" position="-0.24 -0.05 0.03" height="0.18" width="0.4">
+            <a-text value="TikTok" color="#00f2fe" align="center" position="0 0 0.01" scale="0.32 0.32 0.32"></a-text>
+          </a-plane>
+
+          <!-- Instagram Button -->
+          <a-plane id="insta-btn" class="clickable" color="#1a1a1a" position="0.24 -0.05 0.03" height="0.18" width="0.4">
+            <a-text value="Instagram" color="#E1306C" align="center" position="0 0 0.01" scale="0.32 0.32 0.32"></a-text>
+          </a-plane>
+
+        </a-entity>
       </a-camera>
 
-      <!-- 1. EMPTY TARGET: Only used as a tracking reference (NO CHILDREN) -->
+      <!-- Target Reference Anchor -->
       <a-entity id="card-target" mindar-image-target="targetIndex: 0"></a-entity>
-
-      <!-- 2. DECOUPLED CONTENT: Placed outside target so MindAR CANNOT hide it -->
-      <a-entity id="ar-content" visible="false">
-        
-        <!-- Matte Dark Background -->
-        <a-plane position="0 0 0" height="0.65" width="1.0" material="color: #111111; metalness: 0.8; opacity: 0.95"></a-plane>
-
-        <!-- Gold Border -->
-        <a-plane position="0 0 -0.001" height="0.68" width="1.03" material="color: #D4AF37; metalness: 1.0"></a-plane>
-
-        <!-- Header -->
-        <a-text value="CONNECT WITH ME" color="#D4AF37" align="center" position="0 0.18 0.02" scale="0.38 0.38 0.38"></a-text>
-
-        <!-- TikTok Button -->
-        <a-plane id="tiktok-btn" class="clickable" color="#000000" position="-0.24 -0.05 0.03" height="0.18" width="0.4">
-          <a-text value="TikTok" color="#00f2fe" align="center" position="0 0 0.01" scale="0.32 0.32 0.32"></a-text>
-        </a-plane>
-
-        <!-- Instagram Button -->
-        <a-plane id="insta-btn" class="clickable" color="#111111" position="0.24 -0.05 0.03" height="0.18" width="0.4">
-          <a-text value="Instagram" color="#E1306C" align="center" position="0 0 0.01" scale="0.32 0.32 0.32"></a-text>
-        </a-plane>
-
-      </a-entity>
     </a-scene>
 
     <script>
@@ -84,35 +84,40 @@
       const statusBadge = document.querySelector('#status-badge');
 
       let isTracking = false;
+      const tempVector = new THREE.Vector3();
+      const tempQuaternion = new THREE.Quaternion();
+      const tempScale = new THREE.Vector3();
 
-      // Sync position to physical card when visible
-      function syncPosition() {
+      function updateARPosition() {
         if (isTracking) {
-          contentEl.object3D.position.copy(targetEl.object3D.position);
-          contentEl.object3D.quaternion.copy(targetEl.object3D.quaternion);
-          contentEl.object3D.scale.copy(targetEl.object3D.scale);
-          requestAnimationFrame(syncPosition);
+          // Decompose target's world matrix
+          targetEl.object3D.matrixWorld.decompose(tempVector, tempQuaternion, tempScale);
+          
+          // Convert world coordinates to camera local space
+          cameraEl.object3D.worldToLocal(tempVector);
+          
+          // Apply transform relative to camera
+          contentEl.object3D.position.copy(tempVector);
+          contentEl.object3D.quaternion.copy(tempQuaternion);
+          contentEl.object3D.quaternion.premultiply(cameraEl.object3D.quaternion.clone().invert());
+          
+          requestAnimationFrame(updateARPosition);
         }
       }
 
-      // 1. CARD DETECTED: Stick to paper card
+      // 1. CARD FOUND: Lock 3D buttons to physical card position
       targetEl.addEventListener('targetFound', () => {
         isTracking = true;
-        
-        // Remove from camera if previously docked
-        if (contentEl.object3D.parent !== document.querySelector('a-scene').object3D) {
-          document.querySelector('a-scene').object3D.add(contentEl.object3D);
-        }
-
         contentEl.setAttribute('visible', 'true');
+        
         statusBadge.innerText = "✨ Linked to Card";
         statusBadge.style.color = "#4ade80";
         statusBadge.style.borderColor = "#4ade80";
 
-        syncPosition();
+        updateARPosition();
       });
 
-      // 2. CARD LOST: Freeze content right in front of camera screen
+      // 2. CARD LOST: Smoothly dock 3D buttons in center of phone screen
       targetEl.addEventListener('targetLost', () => {
         isTracking = false;
 
@@ -120,20 +125,19 @@
         statusBadge.style.color = "#d4af37";
         statusBadge.style.borderColor = "#d4af37";
 
-        // Dock content 1 unit in front of camera view
-        cameraEl.object3D.add(contentEl.object3D);
+        // Reset to default screen position directly in front of lens
         contentEl.object3D.position.set(0, 0, -1.2);
         contentEl.object3D.quaternion.set(0, 0, 0, 1);
         contentEl.object3D.scale.set(1, 1, 1);
       });
 
-      // Button Links
+      // Button Tap Redirection
       document.querySelector('#tiktok-btn').addEventListener('click', () => {
-        window.location.href = 'https://www.tiktok.com/@cold_spice_18';
+        window.location.href = 'https://www.tiktok.com/@your_handle';
       });
 
       document.querySelector('#insta-btn').addEventListener('click', () => {
-        window.location.href = 'https://www.instagram.com/abdelhak_kini/';
+        window.location.href = 'https://www.instagram.com/your_handle';
       });
     </script>
   </body>
