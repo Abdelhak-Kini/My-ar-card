@@ -4,6 +4,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
     <title>AR Business Card</title>
 
+    <!-- A-Frame & MindAR -->
     <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
 
@@ -13,16 +14,15 @@
         top: 20px;
         left: 50%;
         transform: translateX(-50%);
-        background: rgba(10, 10, 10, 0.85);
+        background: rgba(15, 15, 15, 0.9);
         color: #d4af37;
         padding: 8px 18px;
         border-radius: 25px;
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        font-family: sans-serif;
         font-size: 13px;
         font-weight: 600;
-        letter-spacing: 0.5px;
-        border: 1px solid rgba(212, 175, 55, 0.4);
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+        border: 1px solid rgba(212, 175, 55, 0.5);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.5);
         z-index: 9999;
         pointer-events: none;
         transition: all 0.3s ease;
@@ -31,7 +31,6 @@
   </head>
   <body>
 
-    <!-- Top Status Indicator -->
     <div id="status-badge">Scan Business Card</div>
 
     <a-scene 
@@ -41,80 +40,37 @@
       vr-mode-ui="enabled: false" 
       device-orientation-permission-ui="enabled: false">
       
-      <!-- Camera with Raycaster for Taps -->
+      <!-- Camera -->
       <a-camera 
-        id="main-camera"
+        id="main-camera" 
         position="0 0 0" 
         look-controls="enabled: false" 
         cursor="fuse: false; rayOrigin: mouse" 
         raycaster="far: 10000; objects: .clickable">
       </a-camera>
 
-      <!-- Target Anchor (Invisible tracker) -->
+      <!-- 1. EMPTY TARGET: Only used as a tracking reference (NO CHILDREN) -->
       <a-entity id="card-target" mindar-image-target="targetIndex: 0"></a-entity>
 
-      <!-- Decoupled AR Content (Stays active independently) -->
+      <!-- 2. DECOUPLED CONTENT: Placed outside target so MindAR CANNOT hide it -->
       <a-entity id="ar-content" visible="false">
         
-        <!-- Luxury Matte Card Base -->
-        <a-plane 
-          position="0 0 0" 
-          height="0.65" 
-          width="1.0" 
-          material="color: #121212; metalness: 0.9; roughness: 0.1; opacity: 0.95" 
-          geometry="primitive: plane">
-        </a-plane>
+        <!-- Matte Dark Background -->
+        <a-plane position="0 0 0" height="0.65" width="1.0" material="color: #111111; metalness: 0.8; opacity: 0.95"></a-plane>
 
-        <!-- Outer Gold Trim -->
-        <a-plane 
-          position="0 0 0.001" 
-          height="0.67" 
-          width="1.02" 
-          material="color: #D4AF37; metalness: 1.0; roughness: 0.2">
-        </a-plane>
+        <!-- Gold Border -->
+        <a-plane position="0 0 -0.001" height="0.68" width="1.03" material="color: #D4AF37; metalness: 1.0"></a-plane>
 
-        <!-- Main Title -->
-        <a-text 
-          value="SICKO PRINTS" 
-          color="#FFFFFF" 
-          align="center" 
-          position="0 0.18 0.03" 
-          scale="0.45 0.45 0.45" 
-          font="kelsonsans">
-        </a-text>
+        <!-- Header -->
+        <a-text value="CONNECT WITH ME" color="#D4AF37" align="center" position="0 0.18 0.02" scale="0.38 0.38 0.38"></a-text>
 
-        <!-- Subtitle -->
-        <a-text 
-          value="CUSTOM PRINTING & DESIGN" 
-          color="#D4AF37" 
-          align="center" 
-          position="0 0.10 0.03" 
-          scale="0.22 0.22 0.22">
-        </a-text>
-
-        <!-- TIKTOK BUTTON -->
-        <a-plane 
-          id="tiktok-btn" 
-          class="clickable" 
-          color="#1a1a1a" 
-          position="-0.24 -0.10 0.04" 
-          height="0.18" 
-          width="0.4" 
-          material="metalness: 0.8; roughness: 0.2"
-          animation="property: position; to: -0.24 -0.08 0.04; dir: alternate; loop: true; dur: 2000; easing: easeInOutSine">
+        <!-- TikTok Button -->
+        <a-plane id="tiktok-btn" class="clickable" color="#000000" position="-0.24 -0.05 0.03" height="0.18" width="0.4">
           <a-text value="TikTok" color="#00f2fe" align="center" position="0 0 0.01" scale="0.32 0.32 0.32"></a-text>
         </a-plane>
 
-        <!-- INSTAGRAM BUTTON -->
-        <a-plane 
-          id="insta-btn" 
-          class="clickable" 
-          color="#1a1a1a" 
-          position="0.24 -0.10 0.04" 
-          height="0.18" 
-          width="0.4" 
-          material="metalness: 0.8; roughness: 0.2"
-          animation="property: position; to: 0.24 -0.08 0.04; dir: alternate; loop: true; dur: 2000; easing: easeInOutSine; delay: 500">
+        <!-- Instagram Button -->
+        <a-plane id="insta-btn" class="clickable" color="#111111" position="0.24 -0.05 0.03" height="0.18" width="0.4">
           <a-text value="Instagram" color="#E1306C" align="center" position="0 0 0.01" scale="0.32 0.32 0.32"></a-text>
         </a-plane>
 
@@ -129,51 +85,49 @@
 
       let isTracking = false;
 
-      // Update 3D position while target is in camera view
-      function updatePosition() {
+      // Sync position to physical card when visible
+      function syncPosition() {
         if (isTracking) {
-          const position = new THREE.Vector3();
-          const quaternion = new THREE.Quaternion();
-          const scale = new THREE.Vector3();
-
-          targetEl.object3D.matrixWorld.decompose(position, quaternion, scale);
-
-          contentEl.object3D.position.copy(position);
-          contentEl.object3D.quaternion.copy(quaternion);
-          contentEl.object3D.scale.copy(scale);
-
-          requestAnimationFrame(updatePosition);
+          contentEl.object3D.position.copy(targetEl.object3D.position);
+          contentEl.object3D.quaternion.copy(targetEl.object3D.quaternion);
+          contentEl.object3D.scale.copy(targetEl.object3D.scale);
+          requestAnimationFrame(syncPosition);
         }
       }
 
-      // CARD FOUND: Snap content directly onto the paper card
+      // 1. CARD DETECTED: Stick to paper card
       targetEl.addEventListener('targetFound', () => {
         isTracking = true;
-        contentEl.setAttribute('visible', 'true');
         
+        // Remove from camera if previously docked
+        if (contentEl.object3D.parent !== document.querySelector('a-scene').object3D) {
+          document.querySelector('a-scene').object3D.add(contentEl.object3D);
+        }
+
+        contentEl.setAttribute('visible', 'true');
         statusBadge.innerText = "✨ Linked to Card";
         statusBadge.style.color = "#4ade80";
         statusBadge.style.borderColor = "#4ade80";
 
-        updatePosition();
+        syncPosition();
       });
 
-      // CARD LOST: Dock content right in front of camera screen so user can keep using it
+      // 2. CARD LOST: Freeze content right in front of camera screen
       targetEl.addEventListener('targetLost', () => {
         isTracking = false;
 
-        statusBadge.innerText = "📱 Free Screen View Mode";
+        statusBadge.innerText = "📱 Screen View Mode";
         statusBadge.style.color = "#d4af37";
         statusBadge.style.borderColor = "#d4af37";
 
-        // Lock to camera view position
+        // Dock content 1 unit in front of camera view
+        cameraEl.object3D.add(contentEl.object3D);
         contentEl.object3D.position.set(0, 0, -1.2);
         contentEl.object3D.quaternion.set(0, 0, 0, 1);
         contentEl.object3D.scale.set(1, 1, 1);
-        cameraEl.object3D.add(contentEl.object3D);
       });
 
-      // BUTTON CLICK ACTIONS
+      // Button Links
       document.querySelector('#tiktok-btn').addEventListener('click', () => {
         window.location.href = 'https://www.tiktok.com/@cold_spice_18';
       });
