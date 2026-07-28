@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
+  </head>
+  <body>
+    <a-scene 
+      mindar-image="imageTargetSrc: ./targets.mind;" 
+      color-space="sRGB" 
+      renderer="colorManagement: true, physicallyCorrectLights" 
+      vr-mode-ui="enabled: false" 
+      device-orientation-permission-ui="enabled: false">
+      
+      <!-- Fixed camelCase rayOrigin -->
+      <a-camera 
+        position="0 0 0" 
+        look-controls="enabled: false" 
+        cursor="fuse: false; rayOrigin: mouse" 
+        raycaster="far: 10000; objects: .clickable">
+      </a-camera>
+
+      <a-entity mindar-image-target="targetIndex: 0">
+        
+        <a-plane id="tiktok-btn" class="clickable" color="#000000" position="-0.4 0 0.1" height="0.25" width="0.6">
+          <a-text value="TikTok" color="#FFFFFF" align="center" position="0 0 0.01"></a-text>
+        </a-plane>
+
+        <a-plane id="insta-btn" class="clickable" color="#E1306C" position="0.4 0 0.1" height="0.25" width="0.6">
+          <a-text value="Instagram" color="#FFFFFF" align="center" position="0 0 0.01"></a-text>
+        </a-plane>
+
+      </a-entity>
+    </a-scene>
+    <!-- 3. JAVASCRIPT: Placed right before </body> to handle tap actions -->
+    <script>
+      // When user taps TikTok button
+      const tiktokBtn = document.querySelector('#tiktok-btn');
+      tiktokBtn.addEventListener('click', () => {
+        window.location.href = 'https://www.tiktok.com/@cold_spice_18';
+      });
+
+      // When user taps Instagram button
+      const instaBtn = document.querySelector('#insta-btn');
+      instaBtn.addEventListener('click', () => {
+        window.location.href = 'https://www.instagram.com/abdelhak_kini/';
+      });
+    </script>
+  </body>
+</html>
